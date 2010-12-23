@@ -1,5 +1,5 @@
 = FlipBook for Titanium
-===========================================
+=======================================================
 
 This is a component to create a Flipbook to iPad.
 This initial release uses images for pages. 
