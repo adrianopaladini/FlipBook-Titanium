@@ -1,15 +1,13 @@
 ///////////////////////////////
 //
-//  FlipBook 0.5 By Adriano
-//       22/12/2010
+//  FlipBook 0.7 By Adriano
+//       23/12/2010
 //
 ///////////////////////////////
 
 
 // TODO:
 //
-//		-Option to show/hide pagination
-//		-Option to show/hide buttons
 //		-Animation to direct 'GotoPage'
 //		-Landscape Mode with 2 pages
 //		-Transform to a 3D flip
@@ -46,6 +44,13 @@ var flipbook_startDrag;
 	
 // Main Class
 var flipbook = {
+	showPagination: function(b){
+		flipbook_pgn.visible=b;
+	},
+	showButtons: function(b){
+		flipbook_btn_prev.visible=b;
+		flipbook_btn_next.visible=b;
+	},
 	setPagination: function(pg){
 		
 		// Set current page in Dots
@@ -80,14 +85,16 @@ var flipbook = {
 
 		// Default Parameters
 		var default_args = {
-			'top'		:	null,
-			'left'		:	null,
-			'right'		:	null,
-			'bottom'	:	null,
-			'height'	:	null,
-			'width'		:	null,
-			'pages'		:	null,
-			'attachTo'	: 	null 
+			'top'				:	null,
+			'left'				:	null,
+			'right'				:	null,
+			'bottom'			:	null,
+			'height'			:	null,
+			'width'				:	null,
+			'pages'				:	null,
+			'attachTo'			: 	null,
+			'showPagination'	: 	true,
+			'showButtons'		: 	true 
 		};
 		
 		
@@ -114,8 +121,14 @@ var flipbook = {
 			bottom:flipbook_options.bottom,
 			left:flipbook_options.left,
 			right:flipbook_options.right,
-			touchEnabled:true
+			touchEnabled:true,
+			visible:false
 		});
+		
+		// Add FlipBook to Window
+		flipbook_options.attachTo.add(flipbook_container);
+		
+		
 		flipbook_containerProxy = Ti.UI.createView({
 			top:0,
 			left:0,
@@ -143,7 +156,8 @@ var flipbook = {
 			width:64,
 			bottom:10,
 			left:12,
-			zIndex:7
+			zIndex:7,
+			visible:flipbook_options.showButtons
 		});
 		flipbook_btn_next = Ti.UI.createImageView({
 			image:'flipbook/btn_next.png',
@@ -151,7 +165,8 @@ var flipbook = {
 			width:64,
 			bottom:10,
 			right:12,
-			zIndex:7
+			zIndex:7,
+			visible:flipbook_options.showButtons
 		});
 		flipbook_containerProxy.add(flipbook_btn_prev);
 		flipbook_containerProxy.add(flipbook_btn_next);
@@ -161,7 +176,8 @@ var flipbook = {
 		flipbook_pgn = Ti.UI.createView({
 			zIndex:7,
 			height:6,
-			bottom:10
+			bottom:10,
+			visible:flipbook_options.showPagination
 		});
 		flipbook_containerProxy.add(flipbook_pgn);
 		
@@ -170,38 +186,38 @@ var flipbook = {
 		flipbook_overlay = Ti.UI.createImageView({
 			top:0,
 			left:0,
-			width:flipbook_options.width,
-			height:flipbook_options.height,
+			width:flipbook_container.width,
+			height:flipbook_container.height,
 			zIndex:5
 		});
 		flipbook_pgBottom = Ti.UI.createScrollableView({
 			zIndex:4,
 			top:0,
 			left:0,
-			width:flipbook_options.width,
-			height:flipbook_options.height,
+			width:flipbook_container.width,
+			height:flipbook_container.height,
 			touchEnabled:false
 		});
 		flipbook_imgBottom = Ti.UI.createImageView({
 			top:0,
 			left:0,
-			width:flipbook_options.width,
-			height:flipbook_options.height
+			width:flipbook_container.width,
+			height:flipbook_container.height
 		});
 		flipbook_pgBottom.addView(flipbook_imgBottom);
 		flipbook_pgRear = Ti.UI.createView({
 			zIndex:2,
 			top:0,
 			left:0,
-			width:flipbook_options.width,
-			height:flipbook_options.height,
+			width:flipbook_container.width,
+			height:flipbook_container.height,
 			backgroundColor:'#fff'
 		});
 		flipbook_imgRear = Ti.UI.createImageView({
 			top:0,
 			left:0,
-			width:flipbook_options.width,
-			height:flipbook_options.height,
+			width:flipbook_container.width,
+			height:flipbook_container.height,
 			opacity:0.4
 		});
 		flipbook_pgRear.add(flipbook_imgRear);
@@ -229,8 +245,8 @@ var flipbook = {
 			zIndex:0,
 			top:0,
 			left:0,
-			width:flipbook_options.width,
-			height:flipbook_options.height
+			width:flipbook_container.width,
+			height:flipbook_container.height
 		});
 		
 	
@@ -249,14 +265,13 @@ var flipbook = {
 
 
 
-Ti.API.info('DEBUG HERE');
 		
 		// I don't know, but sometimes this line crash...
 		// Trying to fix.
-		
 		flipbook_containerProxy.add(flipbook_overlay);
 		
-Ti.API.info('TO HERE');
+
+
 
 
 
@@ -277,7 +292,7 @@ Ti.API.info('TO HERE');
 
 		// Get Finger's Events
 		flipbook_fingers.addEventListener('touchstart', function(e) {
-			if(e.x<(flipbook_options.width/2)){
+			if(e.x<(flipbook_container.width/2)){
 				
 				
 				
@@ -303,7 +318,7 @@ Ti.API.info('TO HERE');
 					flipbook_overlay.image = flipbook_pages[flipbook_actualPage-1];
 					flipbook_overlay.visible = true;
 
-					flipbook.move(flipbook_options.width);
+					flipbook.move(flipbook_container.width);
 					
 
 					flipbook_imgBottom.image=flipbook_pages[flipbook_actualPage];
@@ -325,13 +340,13 @@ Ti.API.info('TO HERE');
 		});
 		flipbook_fingers.addEventListener('touchend', function(e) {
 			if(flipbook_startDrag>0){
-				if(e.x<(flipbook_options.width/2)){
+				if(e.x<(flipbook_container.width/2)){
 					flipbook.animate(0);
 					if(flipbook_startDrag==2){
 						flipbook_actualPage++;
 					}
 				}else{
-					flipbook.animate(flipbook_options.width);
+					flipbook.animate(flipbook_container.width);
 					if(flipbook_startDrag==1){
 						flipbook_actualPage--;
 					}
@@ -370,10 +385,8 @@ Ti.API.info('TO HERE');
 		});
 
 		
-		// Return Object
-		//return flipbook_container;
-		flipbook_options.attachTo.add(flipbook_container);
-		
+		// Show Flipbook
+		flipbook_container.visible=true;
 
 	},
 	
@@ -384,12 +397,12 @@ Ti.API.info('TO HERE');
 		flipbook_overlay.visible = true;
 
 		if(go=='next'){
-			flipbook.move(flipbook_options.width);
+			flipbook.move(flipbook_container.width);
 		}else if(go=='prev'){
 			flipbook.move(0);
 			flipbook_actualPage--;
 		}else{
-			flipbook.move(flipbook_options.width);
+			flipbook.move(flipbook_container.width);
 			flipbook_actualPage=go;
 		}
 		
@@ -403,7 +416,7 @@ Ti.API.info('TO HERE');
 			flipbook.animate(0,anim);
 			flipbook_actualPage++;
 		}else if(go=='prev'){
-			flipbook.animate(flipbook_options.width,anim);
+			flipbook.animate(flipbook_container.width,anim);
 		}else{
 			// TODO: Animate page find
 		}
@@ -416,17 +429,17 @@ Ti.API.info('TO HERE');
 	
 
 	move: function(x){
-		flipbook_pgRear.left=(x*2)-flipbook_options.width;
-		flipbook_pgShadow.left=((x*2)-flipbook_options.width)-90;
+		flipbook_pgRear.left=(x*2)-flipbook_container.width;
+		flipbook_pgShadow.left=((x*2)-flipbook_container.width)-90;
 		flipbook_pgBright.left=x-100;
 
-		op = -(x-flipbook_options.width)/(flipbook_options.width/8);
+		op = -(x-flipbook_container.width)/(flipbook_container.width/8);
 		if(op>1){op=1;}
 		flipbook_pgShadow.opacity=op;
 		flipbook_pgBright.opacity=op;
 
 
-		op2 = x/(flipbook_options.width/8);
+		op2 = x/(flipbook_container.width/8);
 		if(op2>1){op2=1;}
 		if(op2<0){op2=0;}
 		flipbook_pgShadow2.opacity=op2;
@@ -439,17 +452,17 @@ Ti.API.info('TO HERE');
 	},
 	animate: function(x,v){
 		if(v==null){v=300;}
-		flipbook_pgRear.animate({left:(x*2)-flipbook_options.width,duration:v});
-		flipbook_pgShadow.animate({left:((x*2)-flipbook_options.width)-90,duration:v});
+		flipbook_pgRear.animate({left:(x*2)-flipbook_container.width,duration:v});
+		flipbook_pgShadow.animate({left:((x*2)-flipbook_container.width)-90,duration:v});
 		flipbook_pgBright.animate({left:x-100,duration:v});
 
-		op = -(x-flipbook_options.width)/(flipbook_options.width/8);
+		op = -(x-flipbook_container.width)/(flipbook_container.width/8);
 		if(op>1){op=1;}
 		flipbook_pgShadow.animate({opacity:op,duration:v});
 		flipbook_pgBright.animate({opacity:op,duration:v});
 
 
-		op2 = x/(flipbook_options.width/8);
+		op2 = x/(flipbook_container.width/8);
 		if(op2>1){op2=1;}
 		if(op2<0){op2=0;}
 		flipbook_pgShadow2.animate({opacity:op2,duration:v});
