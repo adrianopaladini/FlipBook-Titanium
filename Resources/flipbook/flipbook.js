@@ -196,7 +196,8 @@ var flipbook = {
 			left:0,
 			width:flipbook_container.width,
 			height:flipbook_container.height,
-			touchEnabled:false
+			touchEnabled:false,
+			backgroundColor:'#fff'
 		});
 		flipbook_imgBottom = Ti.UI.createImageView({
 			top:0,
@@ -223,7 +224,7 @@ var flipbook = {
 		flipbook_pgRear.add(flipbook_imgRear);
 		flipbook_pgShadow2 = Ti.UI.createImageView({
 			zIndex:1,
-			image:'flipbook/sombra.png',
+			image:'flipbook/shadow.png',
 			width:100,
 			height:1200,
 			left:0
@@ -231,13 +232,13 @@ var flipbook = {
 		flipbook_pgBottom.add(flipbook_pgShadow2);
 		flipbook_pgShadow = Ti.UI.createImageView({
 			zIndex:1,
-			image:'flipbook/sombra.png',
+			image:'flipbook/shadow.png',
 			width:100,
 			height:1200
 		});
 		flipbook_pgBright = Ti.UI.createImageView({
 			zIndex:3,
-			image:'flipbook/brilho.png',
+			image:'flipbook/bright.png',
 			width:100,
 			height:1200
 		});
